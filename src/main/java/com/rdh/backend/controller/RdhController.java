@@ -1,5 +1,8 @@
-package com.rdh.backend;
+package com.rdh.backend.controller;
 
+import com.rdh.backend.dto.response.ApiResponse;
+import com.rdh.backend.dto.response.ExtractResponse;
+import com.rdh.backend.service.RdhService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -8,11 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/rdh")
-@RequiredArgsConstructor // Lombok tự sinh Constructor tiêm RdhService
+@RequiredArgsConstructor
 public class RdhController {
 
     private final RdhService rdhService;
@@ -22,7 +24,6 @@ public class RdhController {
             @RequestPart("image") MultipartFile image,
             @RequestParam("secretData") String secretData) throws IOException {
 
-        // Gọi logic xử lý từ Service
         byte[] stegoImageBytes = rdhService.embed(image, secretData);
 
         return ResponseEntity.ok()
@@ -32,12 +33,10 @@ public class RdhController {
     }
 
     @PostMapping(value = "/extract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, String>> extractData(
+    public ResponseEntity<ApiResponse<ExtractResponse>> extractData(
             @RequestPart("image") MultipartFile stegoImage) throws IOException {
 
-        // Gọi logic xử lý từ Service
-        Map<String, String> result = rdhService.extractAndRestore(stegoImage);
-
-        return ResponseEntity.ok(result);
+        ExtractResponse response = rdhService.extractAndRestore(stegoImage);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
