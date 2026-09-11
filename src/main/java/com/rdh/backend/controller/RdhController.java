@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/rdh")
@@ -19,6 +21,13 @@ public class RdhController {
 
     private final RdhService rdhService;
 
+    // 1. GET danh sách thuật toán
+    @GetMapping("/algorithms")
+    public ResponseEntity<ApiResponse<List<Map<String, String>>>> getAlgorithms() {
+        return ResponseEntity.ok(ApiResponse.success(rdhService.getAvailableAlgorithms()));
+    }
+
+    // 2. POST nhúng tin ẩn (Embed)
     @PostMapping(value = "/embed", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<byte[]> embedData(
             @RequestPart("image") MultipartFile image,
@@ -32,6 +41,7 @@ public class RdhController {
                 .body(stegoImageBytes);
     }
 
+    // 3. POST giải mã tin ẩn (Extract)
     @PostMapping(value = "/extract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ExtractResponse>> extractData(
             @RequestPart("image") MultipartFile stegoImage) throws IOException {
