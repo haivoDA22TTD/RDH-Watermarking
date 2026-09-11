@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,6 +19,9 @@ import java.util.Map;
 
 @Service
 public class RdhServiceImpl implements RdhService {
+
+    // 8 pixel đầu tiên của hàng 0 dùng để lưu peak (8 bit)
+    private static final int HEADER_PIXELS = 8;
 
     @Override
     public List<Map<String, String>> getAvailableAlgorithms() {
@@ -34,36 +38,65 @@ public class RdhServiceImpl implements RdhService {
 
     @Override
     public byte[] embed(MultipartFile imageFile, String secretData) throws IOException {
-        BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageFile.getBytes()));
+        BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(imageFile.getBytes()));
+
+        // Ép kiểu về TYPE_INT_RGB để tránh lỗi với ảnh indexed, grayscale, ARGB
+        BufferedImage image = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = image.createGraphics();
+        g.drawImage(originalImage, 0, 0, null);
+        g.dispose();
+
         int width = image.getWidth();
         int height = image.getHeight();
 
         String dataToHide = secretData + "###";
         byte[] bytes = dataToHide.getBytes(StandardCharsets.UTF_8);
 
-        // 1. Tìm Peak trên kênh Red
+        // 1. Tìm Peak trên kênh Red (bỏ qua HEADER_PIXELS đầu tiên, range [1, 254])
         int[] histogram = new int[256];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
+                if (y == 0 && x < HEADER_PIXELS) continue;
                 int red = (image.getRGB(x, y) >> 16) & 0xFF;
                 histogram[red]++;
             }
         }
 
-        int peak = 0;
-        for (int i = 0; i < 256; i++) {
+        int peak = 1;
+        for (int i = 1; i <= 254; i++) {
             if (histogram[i] > histogram[peak]) {
                 peak = i;
             }
         }
+        
+        System.out.println("EMBED - Peak found: " + peak + ", count: " + histogram[peak]);
 
-        // 2. Dịch chuyển Histogram
+        // 2. Ghi peak vào 8 pixel header TRƯỚC KHI shift (LSB của kênh Red)
+        for (int i = 0; i < HEADER_PIXELS; i++) {
+            int rgb = image.getRGB(i, 0);
+            int red = (rgb >> 16) & 0xFF;
+            int bit = (peak >> (7 - i)) & 1;
+            red = (red & 0xFE) | bit;
+            image.setRGB(i, 0, (rgb & 0xFF00FFFF) | (red << 16));
+        }
+        
+        // Verify header was written correctly
+        int verifyPeak = 0;
+        for (int i = 0; i < HEADER_PIXELS; i++) {
+            int red = (image.getRGB(i, 0) >> 16) & 0xFF;
+            verifyPeak = (verifyPeak << 1) | (red & 1);
+        }
+        System.out.println("EMBED - Peak written to header: " + verifyPeak);
+
+        // 3. Dịch chuyển Histogram (bỏ qua HEADER_PIXELS đầu tiên)
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
+                if (y == 0 && x < HEADER_PIXELS) continue;
+
                 int rgb = image.getRGB(x, y);
                 int red = (rgb >> 16) & 0xFF;
 
-                if (red > peak && red < 255) {
+                if (red > peak && red <= 254) {
                     red = red + 1;
                     int newRgb = (rgb & 0xFF00FFFF) | (red << 16);
                     image.setRGB(x, y, newRgb);
@@ -71,12 +104,14 @@ public class RdhServiceImpl implements RdhService {
             }
         }
 
-        // 3. Nhúng tin tại vị trí Peak
+        // 4. Nhúng tin tại vị trí Peak (bỏ qua HEADER_PIXELS đầu tiên)
         int bitIndex = 0;
         int totalBits = bytes.length * 8;
 
         for (int y = 0; y < height && bitIndex < totalBits; y++) {
             for (int x = 0; x < width && bitIndex < totalBits; x++) {
+                if (y == 0 && x < HEADER_PIXELS) continue;
+
                 int rgb = image.getRGB(x, y);
                 int red = (rgb >> 16) & 0xFF;
 
@@ -93,6 +128,11 @@ public class RdhServiceImpl implements RdhService {
                 }
             }
         }
+        
+        System.out.println("EMBED - Total bits embedded: " + bitIndex + " / " + totalBits);
+        if (bitIndex < totalBits) {
+            System.out.println("WARNING: Not enough capacity! Need " + totalBits + " bits but only embedded " + bitIndex);
+        }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", baos);
@@ -101,34 +141,34 @@ public class RdhServiceImpl implements RdhService {
 
     @Override
     public ExtractResponse extractAndRestore(MultipartFile stegoImageFile) throws IOException {
-        BufferedImage image = ImageIO.read(new ByteArrayInputStream(stegoImageFile.getBytes()));
+        BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(stegoImageFile.getBytes()));
+
+        // Ép kiểu về TYPE_INT_RGB để đảm bảo đọc đúng giá trị Red channel
+        BufferedImage image = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = image.createGraphics();
+        g.drawImage(originalImage, 0, 0, null);
+        g.dispose();
+
         int width = image.getWidth();
         int height = image.getHeight();
 
-        // 1. Tìm Peak trong ảnh Stego
-        int[] histogram = new int[256];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int red = (image.getRGB(x, y) >> 16) & 0xFF;
-                histogram[red]++;
-            }
-        }
-
+        // 1. Đọc peak từ 8 pixel header (LSB của kênh Red)
         int peak = 0;
-        int maxCount = 0;
-        for (int i = 0; i < 255; i++) {
-            if (histogram[i] + histogram[i + 1] > maxCount) {
-                maxCount = histogram[i] + histogram[i + 1];
-                peak = i;
-            }
+        for (int i = 0; i < HEADER_PIXELS; i++) {
+            int red = (image.getRGB(i, 0) >> 16) & 0xFF;
+            peak = (peak << 1) | (red & 1);
         }
+        
+        System.out.println("EXTRACT - Peak read from header: " + peak);
 
-        // 2. Giải mã dữ liệu
+        // 2. Giải mã dữ liệu (bỏ qua HEADER_PIXELS đầu tiên)
         StringBuilder bits = new StringBuilder();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
+                if (y == 0 && x < HEADER_PIXELS) continue;
+
                 int rgb = image.getRGB(x, y);
                 int red = (rgb >> 16) & 0xFF;
 
@@ -144,6 +184,7 @@ public class RdhServiceImpl implements RdhService {
                         String currentText = baos.toString(StandardCharsets.UTF_8);
                         if (currentText.endsWith("###")) {
                             String resultData = currentText.substring(0, currentText.length() - 3);
+                            System.out.println("EXTRACT - Found delimiter! Data: " + resultData);
                             return ExtractResponse.builder()
                                     .extractedData(resultData)
                                     .build();
@@ -152,6 +193,8 @@ public class RdhServiceImpl implements RdhService {
                 }
             }
         }
+        
+        System.out.println("EXTRACT - No delimiter found. Total bits collected: " + bits.length());
 
         return ExtractResponse.builder()
                 .extractedData("Không tìm thấy tin ẩn")
