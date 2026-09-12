@@ -1,5 +1,6 @@
 package com.rdh.backend.service;
 
+import com.rdh.backend.dto.response.EvaluationResponse;
 import com.rdh.backend.dto.response.ExtractResponse;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -10,4 +11,5 @@ public interface RdhService {
     List<Map<String, String>> getAvailableAlgorithms();
     byte[] embed(MultipartFile imageFile, String secretData) throws IOException;
     ExtractResponse extractAndRestore(MultipartFile stegoImageFile) throws IOException;
+    EvaluationResponse evaluateImageQuality(MultipartFile originalImage, MultipartFile stegoImage) throws IOException;
 }

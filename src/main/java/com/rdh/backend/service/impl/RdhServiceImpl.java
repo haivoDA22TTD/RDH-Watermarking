@@ -1,7 +1,9 @@
 package com.rdh.backend.service.impl;
 
+import com.rdh.backend.dto.response.EvaluationResponse;
 import com.rdh.backend.dto.response.ExtractResponse;
 import com.rdh.backend.service.RdhService;
+import com.rdh.backend.util.MetricsCalculator;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -199,5 +201,59 @@ public class RdhServiceImpl implements RdhService {
         return ExtractResponse.builder()
                 .extractedData("Không tìm thấy tin ẩn")
                 .build();
+    }
+
+    @Override
+    public EvaluationResponse evaluateImageQuality(MultipartFile originalImageFile, MultipartFile stegoImageFile) throws IOException {
+        // Đọc và chuẩn hóa ảnh gốc
+        BufferedImage originalTemp = ImageIO.read(new ByteArrayInputStream(originalImageFile.getBytes()));
+        BufferedImage original = new BufferedImage(originalTemp.getWidth(), originalTemp.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g1 = original.createGraphics();
+        g1.drawImage(originalTemp, 0, 0, null);
+        g1.dispose();
+
+        // Đọc và chuẩn hóa ảnh stego
+        BufferedImage stegoTemp = ImageIO.read(new ByteArrayInputStream(stegoImageFile.getBytes()));
+        BufferedImage stego = new BufferedImage(stegoTemp.getWidth(), stegoTemp.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = stego.createGraphics();
+        g2.drawImage(stegoTemp, 0, 0, null);
+        g2.dispose();
+
+        // Kiểm tra kích thước
+        if (original.getWidth() != stego.getWidth() || original.getHeight() != stego.getHeight()) {
+            return EvaluationResponse.builder()
+                    .message("Lỗi: Ảnh gốc và ảnh stego phải có cùng kích thước")
+                    .width(original.getWidth())
+                    .height(original.getHeight())
+                    .build();
+        }
+
+        try {
+            // Tính các metrics
+            double psnr = MetricsCalculator.calculatePSNR(original, stego);
+            long capacity = MetricsCalculator.calculateCapacity(original);
+            double ssim = MetricsCalculator.calculateSSIM(original, stego);
+
+            System.out.println("EVALUATE - PSNR: " + psnr + " dB");
+            System.out.println("EVALUATE - Capacity: " + capacity + " bits");
+            System.out.println("EVALUATE - SSIM: " + ssim);
+
+            return EvaluationResponse.builder()
+                    .psnr(psnr)
+                    .capacity(capacity)
+                    .ssim(ssim)
+                    .width(original.getWidth())
+                    .height(original.getHeight())
+                    .message("Đánh giá chất lượng thành công")
+                    .build();
+
+        } catch (Exception e) {
+            System.err.println("EVALUATE - Error: " + e.getMessage());
+            return EvaluationResponse.builder()
+                    .message("Lỗi khi tính toán metrics: " + e.getMessage())
+                    .width(original.getWidth())
+                    .height(original.getHeight())
+                    .build();
+        }
     }
 }
