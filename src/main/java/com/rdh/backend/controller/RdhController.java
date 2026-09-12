@@ -1,6 +1,8 @@
 package com.rdh.backend.controller;
 
 import com.rdh.backend.dto.response.ApiResponse;
+import com.rdh.backend.dto.response.BatchEmbedResponse;
+import com.rdh.backend.dto.response.BatchExtractResponse;
 import com.rdh.backend.dto.response.EvaluationResponse;
 import com.rdh.backend.dto.response.ExtractResponse;
 import com.rdh.backend.service.RdhService;
@@ -35,6 +37,8 @@ public class RdhController {
         System.out.println("  - POST /api/v1/rdh/embed");
         System.out.println("  - POST /api/v1/rdh/extract");
         System.out.println("  - POST /api/v1/rdh/evaluate ✨ NEW");
+        System.out.println("  - POST /api/v1/rdh/embed-batch 📦 BATCH");
+        System.out.println("  - POST /api/v1/rdh/extract-batch 📦 BATCH");
     }
 
     // 1. GET danh sách thuật toán
@@ -84,5 +88,49 @@ public class RdhController {
     @GetMapping("/evaluate/test")
     public ResponseEntity<String> testEvaluate() {
         return ResponseEntity.ok("Evaluate endpoint is working!");
+    }
+
+    // 5. POST nhúng tin hàng loạt (Batch Embed)
+    @PostMapping(value = "/embed-batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<byte[]> embedBatch(
+            @RequestPart(value = "images", required = true) List<MultipartFile> images,
+            @RequestParam("secretData") String secretData) throws IOException {
+
+        System.out.println("=== BATCH EMBED ENDPOINT CALLED ===");
+        System.out.println("Number of images: " + images.size());
+        System.out.println("Secret data: " + secretData);
+
+        // Response holder để nhận metadata
+        BatchEmbedResponse response = new BatchEmbedResponse();
+        
+        // Tạo ZIP file
+        byte[] zipBytes = rdhService.embedBatch(images, secretData, response);
+
+        // Log summary
+        System.out.println("Batch embed result: " + response.getMessage());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"stego_images.zip\"")
+                .header("X-Total-Images", String.valueOf(response.getTotalImages()))
+                .header("X-Success-Count", String.valueOf(response.getSuccessCount()))
+                .header("X-Failure-Count", String.valueOf(response.getFailureCount()))
+                .body(zipBytes);
+    }
+
+    // 6. POST giải mã hàng loạt (Batch Extract)
+    @PostMapping(value = "/extract-batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<BatchExtractResponse>> extractBatch(
+            @RequestPart(value = "images", required = true) List<MultipartFile> images) throws IOException {
+
+        System.out.println("=== BATCH EXTRACT ENDPOINT CALLED ===");
+        System.out.println("Number of images: " + images.size());
+
+        BatchExtractResponse response = rdhService.extractBatch(images);
+
+        // Log summary
+        System.out.println("Batch extract result: " + response.getMessage());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

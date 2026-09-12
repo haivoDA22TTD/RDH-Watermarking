@@ -1,5 +1,7 @@
 package com.rdh.backend.service.impl;
 
+import com.rdh.backend.dto.response.BatchEmbedResponse;
+import com.rdh.backend.dto.response.BatchExtractResponse;
 import com.rdh.backend.dto.response.EvaluationResponse;
 import com.rdh.backend.dto.response.ExtractResponse;
 import com.rdh.backend.service.RdhService;
@@ -18,6 +20,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class RdhServiceImpl implements RdhService {
@@ -256,4 +260,136 @@ public class RdhServiceImpl implements RdhService {
                     .build();
         }
     }
+
+    @Override
+    public byte[] embedBatch(List<MultipartFile> imageFiles, String secretData, BatchEmbedResponse responseHolder) throws IOException {
+        System.out.println("=== BATCH EMBED START ===");
+        System.out.println("Total images: " + imageFiles.size());
+        System.out.println("Secret data: " + secretData);
+
+        List<BatchEmbedResponse.ImageResult> results = new ArrayList<>();
+        int successCount = 0;
+        int failureCount = 0;
+
+        // Tạo ZIP output stream
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(baos);
+
+        for (MultipartFile imageFile : imageFiles) {
+            String originalFileName = imageFile.getOriginalFilename();
+            BatchEmbedResponse.ImageResult result = BatchEmbedResponse.ImageResult.builder()
+                    .originalFileName(originalFileName)
+                    .originalSize(imageFile.getSize())
+                    .build();
+
+            try {
+                // Embed từng ảnh
+                byte[] stegoImageBytes = embed(imageFile, secretData);
+                
+                // Tạo tên file stego
+                String stegoFileName = "stego_" + originalFileName;
+                if (!stegoFileName.toLowerCase().endsWith(".png")) {
+                    stegoFileName = stegoFileName.substring(0, stegoFileName.lastIndexOf('.')) + ".png";
+                }
+                
+                // Thêm vào ZIP
+                ZipEntry zipEntry = new ZipEntry(stegoFileName);
+                zos.putNextEntry(zipEntry);
+                zos.write(stegoImageBytes);
+                zos.closeEntry();
+
+                // Update result
+                result.setStegoFileName(stegoFileName);
+                result.setStegoSize((long) stegoImageBytes.length);
+                result.setStatus("SUCCESS");
+                successCount++;
+
+                System.out.println("✓ Success: " + originalFileName + " -> " + stegoFileName);
+
+            } catch (Exception e) {
+                result.setStatus("FAILED");
+                result.setErrorMessage(e.getMessage());
+                failureCount++;
+
+                System.err.println("✗ Failed: " + originalFileName + " - " + e.getMessage());
+            }
+
+            results.add(result);
+        }
+
+        zos.close();
+
+        // Update response holder
+        responseHolder.setTotalImages(imageFiles.size());
+        responseHolder.setSuccessCount(successCount);
+        responseHolder.setFailureCount(failureCount);
+        responseHolder.setResults(results);
+        responseHolder.setMessage(String.format("Processed %d images: %d success, %d failed", 
+                imageFiles.size(), successCount, failureCount));
+
+        System.out.println("=== BATCH EMBED COMPLETE ===");
+        System.out.println("Success: " + successCount + ", Failed: " + failureCount);
+
+        return baos.toByteArray();
+    }
+
+    @Override
+    public BatchExtractResponse extractBatch(List<MultipartFile> stegoImageFiles) throws IOException {
+        System.out.println("=== BATCH EXTRACT START ===");
+        System.out.println("Total images: " + stegoImageFiles.size());
+
+        List<BatchExtractResponse.ExtractionResult> results = new ArrayList<>();
+        int successCount = 0;
+        int failureCount = 0;
+
+        for (MultipartFile stegoImageFile : stegoImageFiles) {
+            String fileName = stegoImageFile.getOriginalFilename();
+            BatchExtractResponse.ExtractionResult result = BatchExtractResponse.ExtractionResult.builder()
+                    .fileName(fileName)
+                    .fileSize(stegoImageFile.getSize())
+                    .build();
+
+            try {
+                // Extract từng ảnh
+                ExtractResponse extractResponse = extractAndRestore(stegoImageFile);
+                
+                result.setExtractedData(extractResponse.getExtractedData());
+                
+                if (extractResponse.getExtractedData() != null && 
+                    !extractResponse.getExtractedData().equals("Không tìm thấy tin ẩn")) {
+                    result.setStatus("SUCCESS");
+                    successCount++;
+                    System.out.println("✓ Success: " + fileName + " -> " + extractResponse.getExtractedData());
+                } else {
+                    result.setStatus("FAILED");
+                    result.setErrorMessage("Không tìm thấy tin ẩn");
+                    failureCount++;
+                    System.err.println("✗ Failed: " + fileName + " - Không tìm thấy tin ẩn");
+                }
+
+            } catch (Exception e) {
+                result.setStatus("FAILED");
+                result.setErrorMessage(e.getMessage());
+                result.setExtractedData(null);
+                failureCount++;
+
+                System.err.println("✗ Failed: " + fileName + " - " + e.getMessage());
+            }
+
+            results.add(result);
+        }
+
+        System.out.println("=== BATCH EXTRACT COMPLETE ===");
+        System.out.println("Success: " + successCount + ", Failed: " + failureCount);
+
+        return BatchExtractResponse.builder()
+                .totalImages(stegoImageFiles.size())
+                .successCount(successCount)
+                .failureCount(failureCount)
+                .results(results)
+                .message(String.format("Extracted %d images: %d success, %d failed", 
+                        stegoImageFiles.size(), successCount, failureCount))
+                .build();
+    }
+
 }
