@@ -23,7 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -395,14 +397,13 @@ public class WatermarkController {
             @RequestPart("watermarkedImage") MultipartFile watermarkedImage
     ) throws IOException {
         
-        // Reuse MetricsCalculator from RDH
         java.awt.image.BufferedImage original = javax.imageio.ImageIO.read(originalImage.getInputStream());
         java.awt.image.BufferedImage watermarked = javax.imageio.ImageIO.read(watermarkedImage.getInputStream());
         
         double psnr = com.rdh.backend.util.MetricsCalculator.calculatePSNR(original, watermarked);
         double ssim = com.rdh.backend.util.MetricsCalculator.calculateSSIM(original, watermarked);
         
-        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         result.put("psnr", psnr);
         result.put("ssim", ssim);
         result.put("ncc", 0.992); // Placeholder

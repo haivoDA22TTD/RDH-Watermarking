@@ -1,14 +1,12 @@
 package com.rdh.backend.util;
 
-import org.apache.commons.math3.transform.DctNormalization;
-import org.apache.commons.math3.transform.FastCosineTransformer;
-import org.apache.commons.math3.transform.TransformType;
-
 import java.awt.image.BufferedImage;
 
 /**
  * Utility class cho frequency domain transforms (DCT/IDCT)
- * Sử dụng trong DCT-based watermarking
+ * Sử dụng pure Java implementation - không cần external libraries
+ * 
+ * DCT Type-II (most common DCT used in JPEG, watermarking)
  */
 public class FrequencyTransform {
     
@@ -75,56 +73,53 @@ public class FrequencyTransform {
     }
     
     /**
-     * Apply 1D DCT sử dụng Apache Commons Math3
+     * Apply 1D DCT Type-II (most common DCT)
+     * Formula: X[k] = sqrt(2/N) * c[k] * sum(x[n] * cos(π*k*(n+0.5)/N))
      * 
-     * @param data Input data (8 elements)
+     * @param data Input data (typically 8 elements)
      * @return DCT coefficients
      */
     private static double[] applyDCT1D(double[] data) {
-        // Apache Commons Math3 FastCosineTransformer
-        // Requires power of 2 size + 1, so we pad to 16 for size 8
-        int paddedSize = getNextPowerOfTwoPlusOne(data.length);
-        double[] padded = new double[paddedSize];
-        System.arraycopy(data, 0, padded, 0, data.length);
+        int N = data.length;
+        double[] result = new double[N];
+        double sqrt2N = Math.sqrt(2.0 / N);
         
-        FastCosineTransformer transformer = new FastCosineTransformer(DctNormalization.STANDARD_DCT_I);
-        double[] transformed = transformer.transform(padded, TransformType.FORWARD);
+        for (int k = 0; k < N; k++) {
+            double sum = 0.0;
+            for (int n = 0; n < N; n++) {
+                sum += data[n] * Math.cos(Math.PI * k * (n + 0.5) / N);
+            }
+            
+            // c[k] = 1/sqrt(2) if k=0, else 1
+            double ck = (k == 0) ? (1.0 / Math.sqrt(2.0)) : 1.0;
+            result[k] = sqrt2N * ck * sum;
+        }
         
-        // Extract first 8 coefficients
-        double[] result = new double[data.length];
-        System.arraycopy(transformed, 0, result, 0, data.length);
         return result;
     }
     
     /**
-     * Apply inverse 1D DCT
+     * Apply inverse 1D DCT (IDCT Type-II)
+     * Formula: x[n] = sqrt(2/N) * sum(c[k] * X[k] * cos(π*k*(n+0.5)/N))
      * 
      * @param dctData DCT coefficients
      * @return Original data
      */
     private static double[] applyIDCT1D(double[] dctData) {
-        int paddedSize = getNextPowerOfTwoPlusOne(dctData.length);
-        double[] padded = new double[paddedSize];
-        System.arraycopy(dctData, 0, padded, 0, dctData.length);
+        int N = dctData.length;
+        double[] result = new double[N];
+        double sqrt2N = Math.sqrt(2.0 / N);
         
-        FastCosineTransformer transformer = new FastCosineTransformer(DctNormalization.STANDARD_DCT_I);
-        double[] transformed = transformer.transform(padded, TransformType.INVERSE);
-        
-        double[] result = new double[dctData.length];
-        System.arraycopy(transformed, 0, result, 0, dctData.length);
-        return result;
-    }
-    
-    /**
-     * Get next power of 2 plus 1 (required by FastCosineTransformer)
-     * For size 8 -> returns 17 (2^4 + 1)
-     */
-    private static int getNextPowerOfTwoPlusOne(int n) {
-        int power = 1;
-        while (power < n) {
-            power *= 2;
+        for (int n = 0; n < N; n++) {
+            double sum = 0.0;
+            for (int k = 0; k < N; k++) {
+                double ck = (k == 0) ? (1.0 / Math.sqrt(2.0)) : 1.0;
+                sum += ck * dctData[k] * Math.cos(Math.PI * k * (n + 0.5) / N);
+            }
+            result[n] = sqrt2N * sum;
         }
-        return power + 1;
+        
+        return result;
     }
     
     /**
@@ -258,6 +253,8 @@ public class FrequencyTransform {
         // Else: bit = 0
         
         double remainder = coefficient % quantizationStep;
+        if (remainder < 0) remainder += quantizationStep; // Handle negative
+        
         return (remainder > 0.5 * quantizationStep) ? 1 : 0;
     }
     
@@ -284,7 +281,6 @@ public class FrequencyTransform {
     public static int[][] getZigZagOrder() {
         // Zig-zag order cho 8x8 block
         // DC (0,0) ở đầu, AC coefficients theo thứ tự zig-zag
-        // Chúng ta sẽ embed vào mid-frequency (vị trí 10-40)
         
         return new int[][] {
             {0, 0}, // DC component
