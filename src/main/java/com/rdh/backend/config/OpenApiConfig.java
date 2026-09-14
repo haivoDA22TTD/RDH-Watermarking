@@ -104,7 +104,11 @@ public class OpenApiConfig {
                         .description("Xử lý từng ảnh riêng lẻ (Embed, Extract, Evaluate)"),
                 new Tag()
                         .name("📦 Batch Processing")
-                        .description("Xử lý hàng loạt nhiều ảnh cùng lúc")
+                        .description("Xử lý hàng loạt nhiều ảnh cùng lúc (batch embed/extract)"),
+                new Tag()
+                        .name("🌊 Watermarking")
+                        .description("Digital watermarking cho bảo vệ bản quyền và xác thực nguồn gốc ảnh. " +
+                                "Khác với RDH (reversible), watermarking là irreversible và robust chống lại JPEG, resize, crop.")
         );
     }
 }

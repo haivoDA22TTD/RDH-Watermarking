@@ -41,6 +41,13 @@
 			<version>2.3.0</version>
 		</dependency>
 
+		<!-- Apache Commons Math3 (cho DCT transform trong Watermarking) -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.6.1</version>
+		</dependency>
+
 		<!-- Test Starter chuẩn -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
