@@ -7,6 +7,8 @@ import com.rdh.backend.dto.response.WatermarkAlgorithmInfo;
 import com.rdh.backend.dto.response.WatermarkExtractResponse;
 import com.rdh.backend.dto.response.RobustnessTestResponse;
 import com.rdh.backend.service.WatermarkService;
+import com.rdh.backend.validation.ImageFileValidator;
+import com.rdh.backend.validation.WatermarkTextValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,10 +16,15 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,10 +41,13 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/watermark")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "🌊 Watermarking", description = "Digital watermarking for copyright protection and authentication")
 public class WatermarkController {
     
     private final WatermarkService watermarkService;
+    private final ImageFileValidator imageFileValidator;
+    private final WatermarkTextValidator watermarkTextValidator;
     
     // 1. GET danh sách thuật toán watermarking
     @Operation(
@@ -124,17 +134,24 @@ public class WatermarkController {
     @PostMapping(value = "/embed", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<byte[]> embedWatermark(
             @Parameter(description = "File ảnh gốc (PNG/JPG/BMP)", required = true)
-            @RequestPart("image") MultipartFile image,
+            @RequestPart("image") @NotNull MultipartFile image,
             
             @Parameter(description = "Watermark text (max 64 chars)", required = true, example = "COPYRIGHT_2024_JOHN")
-            @RequestParam("watermarkText") String watermarkText,
+            @RequestParam("watermarkText") @NotBlank String watermarkText,
             
             @Parameter(description = "Thuật toán watermarking", example = "DCT")
             @RequestParam(value = "algorithm", required = false, defaultValue = "DCT") String algorithmStr,
             
             @Parameter(description = "Độ mạnh watermark (0-100, default: 50)", example = "50")
-            @RequestParam(value = "strength", required = false, defaultValue = "50") Integer strength
+            @RequestParam(value = "strength", required = false, defaultValue = "50") 
+            @Min(0) @Max(100) Integer strength
     ) throws IOException {
+        
+        // Validate image file
+        imageFileValidator.validateImageFile(image);
+        
+        // Validate watermark text
+        watermarkTextValidator.validateWatermarkText(watermarkText);
         
         WatermarkType algorithm = WatermarkType.valueOf(algorithmStr.toUpperCase());
         
@@ -223,14 +240,18 @@ public class WatermarkController {
     @PostMapping(value = "/extract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<WatermarkExtractResponse>> extractWatermark(
             @Parameter(description = "File ảnh watermarked (PNG/JPG)", required = true)
-            @RequestPart("image") MultipartFile image,
+            @RequestPart("image") @NotNull MultipartFile image,
             
             @Parameter(description = "Thuật toán (phải giống lúc embed)", example = "DCT")
             @RequestParam(value = "algorithm", required = false, defaultValue = "DCT") String algorithmStr,
             
             @Parameter(description = "Độ mạnh (phải giống lúc embed)", example = "50")
-            @RequestParam(value = "strength", required = false, defaultValue = "50") Integer strength
+            @RequestParam(value = "strength", required = false, defaultValue = "50") 
+            @Min(0) @Max(100) Integer strength
     ) throws IOException {
+        
+        // Validate image file
+        imageFileValidator.validateImageFile(image);
         
         WatermarkType algorithm = WatermarkType.valueOf(algorithmStr.toUpperCase());
         
@@ -325,24 +346,29 @@ public class WatermarkController {
     @PostMapping(value = "/robustness-test", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<RobustnessTestResponse>> testRobustness(
             @Parameter(description = "Ảnh gốc (chưa watermark)", required = true)
-            @RequestPart("originalImage") MultipartFile originalImage,
+            @RequestPart("originalImage") @NotNull MultipartFile originalImage,
             
             @Parameter(description = "Ảnh watermarked", required = true)
-            @RequestPart("watermarkedImage") MultipartFile watermarkedImage,
+            @RequestPart("watermarkedImage") @NotNull MultipartFile watermarkedImage,
             
             @Parameter(
                     description = "Danh sách attacks (comma-separated). VD: JPEG_70,RESIZE_50,GAUSSIAN_NOISE",
                     required = true,
                     example = "JPEG_70,JPEG_50,RESIZE_75,RESIZE_50,CROP_5,GAUSSIAN_NOISE,GAUSSIAN_BLUR,SHARPEN"
             )
-            @RequestParam("attacks") String attacksStr,
+            @RequestParam("attacks") @NotBlank String attacksStr,
             
             @Parameter(description = "Thuật toán", example = "DCT")
             @RequestParam(value = "algorithm", required = false, defaultValue = "DCT") String algorithmStr,
             
             @Parameter(description = "Độ mạnh", example = "50")
-            @RequestParam(value = "strength", required = false, defaultValue = "50") Integer strength
+            @RequestParam(value = "strength", required = false, defaultValue = "50") 
+            @Min(0) @Max(100) Integer strength
     ) throws IOException {
+        
+        // Validate image files
+        imageFileValidator.validateImageFile(originalImage);
+        imageFileValidator.validateImageFile(watermarkedImage);
         
         WatermarkType algorithm = WatermarkType.valueOf(algorithmStr.toUpperCase());
         
@@ -391,11 +417,15 @@ public class WatermarkController {
     @PostMapping(value = "/evaluate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<Map<String, Object>>> evaluateQuality(
             @Parameter(description = "Ảnh gốc", required = true)
-            @RequestPart("originalImage") MultipartFile originalImage,
+            @RequestPart("originalImage") @NotNull MultipartFile originalImage,
             
             @Parameter(description = "Ảnh watermarked", required = true)
-            @RequestPart("watermarkedImage") MultipartFile watermarkedImage
+            @RequestPart("watermarkedImage") @NotNull MultipartFile watermarkedImage
     ) throws IOException {
+        
+        // Validate image files
+        imageFileValidator.validateImageFile(originalImage);
+        imageFileValidator.validateImageFile(watermarkedImage);
         
         java.awt.image.BufferedImage original = javax.imageio.ImageIO.read(originalImage.getInputStream());
         java.awt.image.BufferedImage watermarked = javax.imageio.ImageIO.read(watermarkedImage.getInputStream());

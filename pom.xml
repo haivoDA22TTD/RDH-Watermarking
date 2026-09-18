@@ -62,6 +62,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Bean Validation API -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
 		<!-- Mockito - Mocking framework (đã có trong spring-boot-starter-test) -->
 		
 		<!-- JUnit 5 Jupiter (đã có trong spring-boot-starter-test) -->

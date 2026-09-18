@@ -6,6 +6,7 @@ import com.rdh.backend.dto.response.BatchExtractResponse;
 import com.rdh.backend.dto.response.EvaluationResponse;
 import com.rdh.backend.dto.response.ExtractResponse;
 import com.rdh.backend.service.RdhService;
+import com.rdh.backend.validation.ImageFileValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,9 +14,12 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,15 +30,18 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/rdh")
+@Validated
 @Tag(name = "🔐 Single Processing", description = "API xử lý từng ảnh riêng lẻ")
 public class RdhController {
 
     private final RdhService rdhService;
+    private final ImageFileValidator imageFileValidator;
 
-    public RdhController(RdhService rdhService) {
+    public RdhController(RdhService rdhService, ImageFileValidator imageFileValidator) {
         this.rdhService = rdhService;
+        this.imageFileValidator = imageFileValidator;
         System.out.println("╔═══════════════════════════════════════════╗");
-        System.out.println("║  RdhController initialized with EVALUATE  ║");
+        System.out.println("║  RdhController initialized with VALIDATE  ║");
         System.out.println("╚═══════════════════════════════════════════╝");
     }
 
@@ -113,11 +120,14 @@ public class RdhController {
     @PostMapping(value = "/embed", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<byte[]> embedData(
             @Parameter(description = "File ảnh gốc (PNG/JPG/BMP)", required = true)
-            @RequestPart("image") MultipartFile image,
+            @RequestPart("image") @NotNull MultipartFile image,
             
             @Parameter(description = "Dữ liệu bí mật cần nhúng (text)", required = true, example = "My secret message")
-            @RequestParam("secretData") String secretData) throws IOException {
+            @RequestParam("secretData") @NotBlank String secretData) throws IOException {
 
+        // Validate image file
+        imageFileValidator.validateImageFile(image);
+        
         byte[] stegoImageBytes = rdhService.embed(image, secretData);
 
         return ResponseEntity.ok()
@@ -171,8 +181,11 @@ public class RdhController {
     @PostMapping(value = "/extract", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<ExtractResponse>> extractData(
             @Parameter(description = "File ảnh stego (PNG)", required = true)
-            @RequestPart("image") MultipartFile stegoImage) throws IOException {
+            @RequestPart("image") @NotNull MultipartFile stegoImage) throws IOException {
 
+        // Validate image file
+        imageFileValidator.validateImageFile(stegoImage);
+        
         ExtractResponse response = rdhService.extractAndRestore(stegoImage);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -227,15 +240,19 @@ public class RdhController {
     @PostMapping(value = "/evaluate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<EvaluationResponse>> evaluateQuality(
             @Parameter(description = "Ảnh gốc (chưa nhúng tin)", required = true)
-            @RequestPart(value = "originalImage", required = true) MultipartFile originalImage,
+            @RequestPart(value = "originalImage", required = true) @NotNull MultipartFile originalImage,
             
             @Parameter(description = "Ảnh stego (đã nhúng tin)", required = true)
-            @RequestPart(value = "stegoImage", required = true) MultipartFile stegoImage) throws IOException {
+            @RequestPart(value = "stegoImage", required = true) @NotNull MultipartFile stegoImage) throws IOException {
 
         System.out.println("=== EVALUATE ENDPOINT CALLED ===");
         System.out.println("Original image: " + originalImage.getOriginalFilename() + ", size: " + originalImage.getSize());
         System.out.println("Stego image: " + stegoImage.getOriginalFilename() + ", size: " + stegoImage.getSize());
 
+        // Validate image files
+        imageFileValidator.validateImageFile(originalImage);
+        imageFileValidator.validateImageFile(stegoImage);
+        
         EvaluationResponse response = rdhService.evaluateImageQuality(originalImage, stegoImage);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -287,15 +304,18 @@ public class RdhController {
     @PostMapping(value = "/embed-batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<byte[]> embedBatch(
             @Parameter(description = "Danh sách ảnh gốc (chọn nhiều file)", required = true)
-            @RequestPart(value = "images", required = true) List<MultipartFile> images,
+            @RequestPart(value = "images", required = true) @NotNull List<MultipartFile> images,
             
             @Parameter(description = "Dữ liệu bí mật (áp dụng cho tất cả ảnh)", required = true, example = "Batch secret")
-            @RequestParam("secretData") String secretData) throws IOException {
+            @RequestParam("secretData") @NotBlank String secretData) throws IOException {
 
         System.out.println("=== BATCH EMBED ENDPOINT CALLED ===");
         System.out.println("Number of images: " + images.size());
         System.out.println("Secret data: " + secretData);
 
+        // Validate image files (batch)
+        imageFileValidator.validateImageFiles(images);
+        
         // Response holder để nhận metadata
         BatchEmbedResponse response = new BatchEmbedResponse();
         
@@ -374,11 +394,14 @@ public class RdhController {
     @PostMapping(value = "/extract-batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BatchExtractResponse>> extractBatch(
             @Parameter(description = "Danh sách ảnh stego (chọn nhiều file)", required = true)
-            @RequestPart(value = "images", required = true) List<MultipartFile> images) throws IOException {
+            @RequestPart(value = "images", required = true) @NotNull List<MultipartFile> images) throws IOException {
 
         System.out.println("=== BATCH EXTRACT ENDPOINT CALLED ===");
         System.out.println("Number of images: " + images.size());
 
+        // Validate image files (batch)
+        imageFileValidator.validateImageFiles(images);
+        
         BatchExtractResponse response = rdhService.extractBatch(images);
 
         // Log summary
