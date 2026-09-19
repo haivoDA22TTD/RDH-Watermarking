@@ -1,0 +1,229 @@
+2026-09-19 13:10:59.843 [main] ERROR o.s.boot.SpringApplication - [RequestId:] [UserId:] - Application run failed
+java.lang.IllegalStateException: java.lang.IllegalStateException: Logback configuration error detected: 
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for conversion word [wEx]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - [wEx] is not a valid conversion word
+	at org.springframework.boot.context.logging.LoggingApplicationListener.initializeSystem(LoggingApplicationListener.java:347)
+	at org.springframework.boot.context.logging.LoggingApplicationListener.initialize(LoggingApplicationListener.java:298)
+	at org.springframework.boot.context.logging.LoggingApplicationListener.onApplicationEnvironmentPreparedEvent(LoggingApplicationListener.java:246)
+	at org.springframework.boot.context.logging.LoggingApplicationListener.onApplicationEvent(LoggingApplicationListener.java:223)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.doInvokeListener(SimpleApplicationEventMulticaster.java:185)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.invokeListener(SimpleApplicationEventMulticaster.java:178)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.multicastEvent(SimpleApplicationEventMulticaster.java:156)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.multicastEvent(SimpleApplicationEventMulticaster.java:138)
+	at org.springframework.boot.context.event.EventPublishingRunListener.multicastInitialEvent(EventPublishingRunListener.java:136)
+	at org.springframework.boot.context.event.EventPublishingRunListener.environmentPrepared(EventPublishingRunListener.java:81)
+	at org.springframework.boot.SpringApplicationRunListeners.lambda$environmentPrepared$2(SpringApplicationRunListeners.java:64)
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationRunListeners.doWithListeners(SpringApplicationRunListeners.java:118)
+	at org.springframework.boot.SpringApplicationRunListeners.doWithListeners(SpringApplicationRunListeners.java:112)
+	at org.springframework.boot.SpringApplicationRunListeners.environmentPrepared(SpringApplicationRunListeners.java:63)
+	at org.springframework.boot.SpringApplication.prepareEnvironment(SpringApplication.java:369)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:329)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
+	at com.rdh.backend.RdhBackendApplication.main(RdhBackendApplication.java:10)
+Caused by: java.lang.IllegalStateException: Logback configuration error detected: 
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - There is no conversion class registered for conversion word [wEx]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@665df3c6 - [wEx] is not a valid conversion word
+	at org.springframework.boot.logging.logback.LogbackLoggingSystem.reportConfigurationErrorsIfNecessary(LogbackLoggingSystem.java:277)
+	at org.springframework.boot.logging.logback.LogbackLoggingSystem.loadConfiguration(LogbackLoggingSystem.java:255)
+	at org.springframework.boot.logging.AbstractLoggingSystem.initializeWithConventions(AbstractLoggingSystem.java:81)
+	at org.springframework.boot.logging.AbstractLoggingSystem.initialize(AbstractLoggingSystem.java:61)
+	at org.springframework.boot.logging.logback.LogbackLoggingSystem.initialize(LogbackLoggingSystem.java:189)
+	at org.springframework.boot.context.logging.LoggingApplicationListener.initializeSystem(LoggingApplicationListener.java:332)
+	... 19 common frames omitted
+2026-09-19 13:16:14.672 [main] ERROR o.s.boot.SpringApplication - [RequestId:] [UserId:] - Application run failed
+java.lang.IllegalStateException: java.lang.IllegalStateException: Logback configuration error detected: 
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for conversion word [wEx]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - [wEx] is not a valid conversion word
+	at org.springframework.boot.context.logging.LoggingApplicationListener.initializeSystem(LoggingApplicationListener.java:347)
+	at org.springframework.boot.context.logging.LoggingApplicationListener.initialize(LoggingApplicationListener.java:298)
+	at org.springframework.boot.context.logging.LoggingApplicationListener.onApplicationEnvironmentPreparedEvent(LoggingApplicationListener.java:246)
+	at org.springframework.boot.context.logging.LoggingApplicationListener.onApplicationEvent(LoggingApplicationListener.java:223)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.doInvokeListener(SimpleApplicationEventMulticaster.java:185)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.invokeListener(SimpleApplicationEventMulticaster.java:178)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.multicastEvent(SimpleApplicationEventMulticaster.java:156)
+	at org.springframework.context.event.SimpleApplicationEventMulticaster.multicastEvent(SimpleApplicationEventMulticaster.java:138)
+	at org.springframework.boot.context.event.EventPublishingRunListener.multicastInitialEvent(EventPublishingRunListener.java:136)
+	at org.springframework.boot.context.event.EventPublishingRunListener.environmentPrepared(EventPublishingRunListener.java:81)
+	at org.springframework.boot.SpringApplicationRunListeners.lambda$environmentPrepared$2(SpringApplicationRunListeners.java:64)
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationRunListeners.doWithListeners(SpringApplicationRunListeners.java:118)
+	at org.springframework.boot.SpringApplicationRunListeners.doWithListeners(SpringApplicationRunListeners.java:112)
+	at org.springframework.boot.SpringApplicationRunListeners.environmentPrepared(SpringApplicationRunListeners.java:63)
+	at org.springframework.boot.SpringApplication.prepareEnvironment(SpringApplication.java:369)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:329)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
+	at com.rdh.backend.RdhBackendApplication.main(RdhBackendApplication.java:10)
+Caused by: java.lang.IllegalStateException: Logback configuration error detected: 
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for composite conversion word [clr]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - Failed to create converter for [%clr] keyword
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - There is no conversion class registered for conversion word [wEx]
+ERROR in ch.qos.logback.core.pattern.parser.Compiler@291f18 - [wEx] is not a valid conversion word
+	at org.springframework.boot.logging.logback.LogbackLoggingSystem.reportConfigurationErrorsIfNecessary(LogbackLoggingSystem.java:277)
+	at org.springframework.boot.logging.logback.LogbackLoggingSystem.loadConfiguration(LogbackLoggingSystem.java:255)
+	at org.springframework.boot.logging.AbstractLoggingSystem.initializeWithConventions(AbstractLoggingSystem.java:81)
+	at org.springframework.boot.logging.AbstractLoggingSystem.initialize(AbstractLoggingSystem.java:61)
+	at org.springframework.boot.logging.logback.LogbackLoggingSystem.initialize(LogbackLoggingSystem.java:189)
+	at org.springframework.boot.context.logging.LoggingApplicationListener.initializeSystem(LoggingApplicationListener.java:332)
+	... 19 common frames omitted
+2026-09-19 13:17:11.551 [main] INFO  c.rdh.backend.RdhBackendApplication - Starting RdhBackendApplication using Java 17.0.12 with PID 15408 (D:\rdh-backend\target\classes started by Asus PC in D:\rdh-backend)
+2026-09-19 13:17:11.553 [main] DEBUG c.rdh.backend.RdhBackendApplication - Running with Spring Boot v3.2.4, Spring v6.1.5
+2026-09-19 13:17:11.555 [main] INFO  c.rdh.backend.RdhBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-09-19 13:17:12.106 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'validationConfig' of type [com.rdh.backend.config.ValidationConfig$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [methodValidationPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-09-19 13:17:12.111 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'validationMessageSource' of type [org.springframework.context.support.ResourceBundleMessageSource] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [methodValidationPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-09-19 13:17:12.116 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'validator' of type [org.springframework.validation.beanvalidation.LocalValidatorFactoryBean] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [methodValidationPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-09-19 13:17:12.330 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-09-19 13:17:12.337 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-19 13:17:12.337 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-09-19 13:17:12.374 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-09-19 13:17:12.375 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 780 ms
+2026-09-19 13:17:12.600 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.r.b.c.RdhController:
+	{GET [/api/v1/rdh/algorithms]}: getAlgorithms()
+	{POST [/api/v1/rdh/extract], consumes [multipart/form-data]}: extractData(MultipartFile)
+	{POST [/api/v1/rdh/embed-batch], consumes [multipart/form-data]}: embedBatch(List,String)
+	{POST [/api/v1/rdh/extract-batch], consumes [multipart/form-data]}: extractBatch(List)
+	{POST [/api/v1/rdh/embed], consumes [multipart/form-data]}: embedData(MultipartFile,String)
+	{POST [/api/v1/rdh/evaluate], consumes [multipart/form-data]}: evaluateQuality(MultipartFile,MultipartFile)
+	{GET [/api/v1/rdh/evaluate/test]}: testEvaluate()
+2026-09-19 13:17:12.615 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.r.b.c.WatermarkController:
+	{GET [/api/v1/watermark/algorithms]}: getAlgorithms()
+	{POST [/api/v1/watermark/evaluate], consumes [multipart/form-data]}: evaluateQuality(MultipartFile,MultipartFile)
+	{POST [/api/v1/watermark/embed], consumes [multipart/form-data]}: embedWatermark(MultipartFile,String,String,Integer)
+	{POST [/api/v1/watermark/extract], consumes [multipart/form-data]}: extractWatermark(MultipartFile,String,Integer)
+	{POST [/api/v1/watermark/robustness-test], consumes [multipart/form-data]}: testRobustness(MultipartFile,MultipartFile,String,String,Integer)
+2026-09-19 13:17:12.623 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.b.a.w.s.e.BasicErrorController:
+	{ [/error]}: error(HttpServletRequest)
+	{ [/error], produces [text/html]}: errorHtml(HttpServletRequest,HttpServletResponse)
+2026-09-19 13:17:12.632 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.a.OpenApiWebMvcResource:
+	{GET [/v3/api-docs.yaml], produces [application/vnd.oai.openapi]}: openapiYaml(HttpServletRequest,String,Locale)
+	{GET [/v3/api-docs], produces [application/json]}: openapiJson(HttpServletRequest,String,Locale)
+2026-09-19 13:17:12.634 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.u.SwaggerWelcomeWebMvc:
+	{GET [/swagger-ui.html]}: redirectToUi(HttpServletRequest)
+2026-09-19 13:17:12.634 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.u.SwaggerConfigResource:
+	{GET [/v3/api-docs/swagger-config], produces [application/json]}: openapiJson(HttpServletRequest)
+2026-09-19 13:17:12.636 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 18 mappings in 'requestMappingHandlerMapping'
+2026-09-19 13:17:12.786 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2026-09-19 13:17:12.793 [main] INFO  c.rdh.backend.RdhBackendApplication - Started RdhBackendApplication in 1.548 seconds (process running for 1.925)
+2026-09-19 13:17:12.795 [main] INFO  c.rdh.backend.config.LoggingConfig - 
+═══════════════════════════════════════════════════════════════════════════════
+  🚀 RDH Backend Application Started Successfully!
+═══════════════════════════════════════════════════════════════════════════════
+  Application:     rdh-backend
+  Version:         1.0.0
+  Active Profiles: [default]
+  Local URL:       http://localhost:8080/
+  External URL:    http://192.168.1.118:8080/
+  Swagger UI:      http://localhost:8080/swagger-ui.html
+  API Docs:        http://localhost:8080/v3/api-docs
+  Log Level:       DEBUG
+  Log Path:        ./logs
+═══════════════════════════════════════════════════════════════════════════════
+2026-09-19 13:17:12.796 [main] INFO  c.rdh.backend.config.LoggingConfig - Max file upload size: 200MB
+2026-09-19 13:17:12.797 [main] INFO  c.rdh.backend.config.LoggingConfig - Max request size: 200MB
+2026-09-19 13:17:20.106 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-19 13:17:20.107 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-09-19 13:17:20.108 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-09-19 13:17:20.115 [http-nio-8080-exec-1] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | GET /swagger-ui.html | client=0:0:0:0:0:0:0:1 | headers={Accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, }
+2026-09-19 13:17:20.126 [http-nio-8080-exec-1] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to org.springdoc.webmvc.ui.SwaggerWelcomeWebMvc#redirectToUi(HttpServletRequest)
+2026-09-19 13:17:20.175 [http-nio-8080-exec-1] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | GET /swagger-ui.html | status=302 ↪️ | duration=61ms
+2026-09-19 13:17:20.193 [http-nio-8080-exec-3] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | GET /swagger-ui/index.html | client=0:0:0:0:0:0:0:1 | headers={Accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, }
+2026-09-19 13:17:20.207 [http-nio-8080-exec-3] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | GET /swagger-ui/index.html | status=200 ✅ | duration=14ms
+2026-09-19 13:17:20.223 [http-nio-8080-exec-5] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | GET /swagger-ui/swagger-ui.css | client=0:0:0:0:0:0:0:1 | headers={Accept=text/css,*/*;q=0.1, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, }
+2026-09-19 13:17:20.223 [http-nio-8080-exec-6] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | GET /swagger-ui/index.css | client=0:0:0:0:0:0:0:1 | headers={Accept=text/css,*/*;q=0.1, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, }
+2026-09-19 13:17:20.231 [http-nio-8080-exec-7] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | GET /swagger-ui/swagger-ui-bundle.js | client=0:0:0:0:0:0:0:1 | headers={Accept=*/*, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, }
+2026-09-19 13:17:20.231 [http-nio-8080-exec-4] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | GET /swagger-ui/swagger-ui-standalone-preset.js | client=0:0:0:0:0:0:0:1 | headers={Accept=*/*, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, }
+2026-09-19 13:17:20.231 [http-nio-8080-exec-2] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | GET /swagger-ui/swagger-initializer.js | client=0:0:0:0:0:0:0:1 | headers={Accept=*/*, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, }
+2026-09-19 13:17:20.231 [http-nio-8080-exec-6] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | GET /swagger-ui/index.css | status=200 ✅ | duration=8ms
+2026-09-19 13:17:20.231 [http-nio-8080-exec-5] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | GET /swagger-ui/swagger-ui.css | status=200 ✅ | duration=8ms
+2026-09-19 13:17:20.237 [http-nio-8080-exec-4] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | GET /swagger-ui/swagger-ui-standalone-preset.js | status=200 ✅ | duration=6ms
+2026-09-19 13:17:20.243 [http-nio-8080-exec-7] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | GET /swagger-ui/swagger-ui-bundle.js | status=200 ✅ | duration=12ms
+2026-09-19 13:17:20.267 [http-nio-8080-exec-2] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | GET /swagger-ui/swagger-initializer.js | status=200 ✅ | duration=36ms
+2026-09-19 13:17:20.416 [http-nio-8080-exec-8] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | GET /v3/api-docs/swagger-config | client=0:0:0:0:0:0:0:1 | headers={Accept=*/*, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, }
+2026-09-19 13:17:20.417 [http-nio-8080-exec-8] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to org.springdoc.webmvc.ui.SwaggerConfigResource#openapiJson(HttpServletRequest)
+2026-09-19 13:17:20.427 [http-nio-8080-exec-8] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | GET /v3/api-docs/swagger-config | status=200 ✅ | duration=12ms
+2026-09-19 13:17:20.463 [http-nio-8080-exec-9] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | GET /v3/api-docs | client=0:0:0:0:0:0:0:1 | headers={Accept=application/json,*/*, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, }
+2026-09-19 13:17:20.463 [http-nio-8080-exec-10] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | GET /swagger-ui/favicon-32x32.png | client=0:0:0:0:0:0:0:1 | headers={Accept=image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, }
+2026-09-19 13:17:20.464 [http-nio-8080-exec-9] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to org.springdoc.webmvc.api.OpenApiWebMvcResource#openapiJson(HttpServletRequest, String, Locale)
+2026-09-19 13:17:20.466 [http-nio-8080-exec-10] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | GET /swagger-ui/favicon-32x32.png | status=200 ✅ | duration=3ms
+2026-09-19 13:17:20.757 [http-nio-8080-exec-9] INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 287 ms
+2026-09-19 13:17:20.778 [http-nio-8080-exec-9] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | GET /v3/api-docs | status=200 ✅ | duration=315ms
+2026-09-19 13:17:51.825 [http-nio-8080-exec-1] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | POST /api/v1/rdh/embed?secretData=anti%20Uchiha | client=0:0:0:0:0:0:0:1 | headers={Accept=image/png, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, Content-Length=16204, Content-Type=multipart/form-data; boundary=----WebKitFormBoundaryv6IT2gk7OAQVLXks, }
+2026-09-19 13:17:51.842 [http-nio-8080-exec-1] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to com.rdh.backend.controller.RdhController#embedData(MultipartFile, String)
+2026-09-19 13:17:51.849 [http-nio-8080-exec-1] DEBUG c.rdh.backend.aspect.LoggingAspect - → CONTROLLER ENTRY | RdhController.embedData | args=[Spring Boot.png (size=15,64 KB, type=image/png), anti Uchiha]
+2026-09-19 13:17:51.892 [http-nio-8080-exec-1] DEBUG c.rdh.backend.aspect.LoggingAspect - → VALIDATOR ENTRY | ImageFileValidator.validateImageFile | args=[Spring Boot.png (size=15,64 KB, type=image/png)]
+2026-09-19 13:17:52.066 [http-nio-8080-exec-1] INFO  c.rdh.backend.aspect.LoggingAspect - ← VALIDATOR EXIT | ImageFileValidator.validateImageFile | duration=174ms | result=null
+2026-09-19 13:17:52.066 [http-nio-8080-exec-1] DEBUG c.rdh.backend.aspect.LoggingAspect - → SERVICE ENTRY | RdhServiceImpl.embed | args=[Spring Boot.png (size=15,64 KB, type=image/png), anti Uchiha]
+2026-09-19 13:17:52.154 [http-nio-8080-exec-1] INFO  c.rdh.backend.aspect.LoggingAspect - ← SERVICE EXIT | RdhServiceImpl.embed | duration=83ms | result=byte[14,46 KB]
+2026-09-19 13:17:52.156 [http-nio-8080-exec-1] INFO  c.rdh.backend.aspect.LoggingAspect - ← CONTROLLER EXIT | RdhController.embedData | duration=306ms | result=ResponseEntity
+2026-09-19 13:17:52.156 [http-nio-8080-exec-1] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | POST /api/v1/rdh/embed | status=200 ✅ | duration=332ms
+2026-09-19 13:18:06.205 [http-nio-8080-exec-3] INFO  c.r.b.filter.RequestLoggingFilter - >>> INCOMING REQUEST | POST /api/v1/rdh/extract | client=0:0:0:0:0:0:0:1 | headers={Accept=application/json, User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36, Content-Length=14997, Content-Type=multipart/form-data; boundary=----WebKitFormBoundaryePuFwRxcKB2pAsJQ, }
+2026-09-19 13:18:06.210 [http-nio-8080-exec-3] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to com.rdh.backend.controller.RdhController#extractData(MultipartFile)
+2026-09-19 13:18:06.211 [http-nio-8080-exec-3] DEBUG c.rdh.backend.aspect.LoggingAspect - → CONTROLLER ENTRY | RdhController.extractData | args=[stego_image.png (size=14,46 KB, type=image/png)]
+2026-09-19 13:18:06.211 [http-nio-8080-exec-3] DEBUG c.rdh.backend.aspect.LoggingAspect - → VALIDATOR ENTRY | ImageFileValidator.validateImageFile | args=[stego_image.png (size=14,46 KB, type=image/png)]
+2026-09-19 13:18:06.225 [http-nio-8080-exec-3] INFO  c.rdh.backend.aspect.LoggingAspect - ← VALIDATOR EXIT | ImageFileValidator.validateImageFile | duration=14ms | result=null
+2026-09-19 13:18:06.225 [http-nio-8080-exec-3] DEBUG c.rdh.backend.aspect.LoggingAspect - → SERVICE ENTRY | RdhServiceImpl.extractAndRestore | args=[stego_image.png (size=14,46 KB, type=image/png)]
+2026-09-19 13:18:06.231 [http-nio-8080-exec-3] INFO  c.rdh.backend.aspect.LoggingAspect - ← SERVICE EXIT | RdhServiceImpl.extractAndRestore | duration=6ms | result=ExtractResponse
+2026-09-19 13:18:06.231 [http-nio-8080-exec-3] INFO  c.rdh.backend.aspect.LoggingAspect - ← CONTROLLER EXIT | RdhController.extractData | duration=21ms | result=ResponseEntity
+2026-09-19 13:18:06.238 [http-nio-8080-exec-3] INFO  c.r.b.filter.RequestLoggingFilter - <<< OUTGOING RESPONSE | POST /api/v1/rdh/extract | status=200 ✅ | duration=33ms

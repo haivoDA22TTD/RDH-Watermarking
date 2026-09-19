@@ -7,6 +7,7 @@ import com.rdh.backend.dto.response.WatermarkAlgorithmInfo;
 import com.rdh.backend.dto.response.WatermarkExtractResponse;
 import com.rdh.backend.dto.response.RobustnessTestResponse;
 import com.rdh.backend.service.WatermarkService;
+import com.rdh.backend.util.LoggingUtils;
 import com.rdh.backend.validation.ImageFileValidator;
 import com.rdh.backend.validation.WatermarkTextValidator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +22,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +40,7 @@ import java.util.stream.Collectors;
 /**
  * REST Controller cho Digital Watermarking operations
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/watermark")
 @RequiredArgsConstructor
@@ -78,7 +81,9 @@ public class WatermarkController {
     })
     @GetMapping("/algorithms")
     public ResponseEntity<ApiResponse<List<WatermarkAlgorithmInfo>>> getAlgorithms() {
+        log.info("📋 Get available watermarking algorithms");
         List<WatermarkAlgorithmInfo> algorithms = watermarkService.getAvailableAlgorithms();
+        log.info("✅ Returned {} algorithms", algorithms.size());
         return ResponseEntity.ok(ApiResponse.success(algorithms));
     }
     
