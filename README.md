@@ -44,7 +44,7 @@ com.rdh.backend/
 1. Yêu cầu môi trường (Prerequisites)
 Java OpenJDK 17 trở lên
 
-Maven 3.9+
+Maven 3.9
 
 Docker Desktop & Docker Compose (Tùy chọn)
 
