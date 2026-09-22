@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
@@ -303,8 +304,15 @@ public class RdhController {
     })
     @PostMapping(value = "/embed-batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<byte[]> embedBatch(
-            @Parameter(description = "Danh sách ảnh gốc (chọn nhiều file)", required = true)
-            @RequestPart(value = "images", required = true) @NotNull List<MultipartFile> images,
+            @RequestBody(
+                description = "Upload nhiều ảnh cùng lúc. Trong Swagger: Click 'Choose Files', giữ Ctrl+Click (Windows) hoặc Cmd+Click (Mac) để chọn nhiều ảnh",
+                required = true,
+                content = @Content(
+                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                    schema = @Schema(type = "object", implementation = MultipartFile.class)
+                )
+            )
+            @RequestPart(value = "images", required = true) List<MultipartFile> images,
             
             @Parameter(description = "Dữ liệu bí mật (áp dụng cho tất cả ảnh)", required = true, example = "Batch secret")
             @RequestParam("secretData") @NotBlank String secretData) throws IOException {
@@ -393,8 +401,15 @@ public class RdhController {
     })
     @PostMapping(value = "/extract-batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BatchExtractResponse>> extractBatch(
-            @Parameter(description = "Danh sách ảnh stego (chọn nhiều file)", required = true)
-            @RequestPart(value = "images", required = true) @NotNull List<MultipartFile> images) throws IOException {
+            @RequestBody(
+                description = "Upload nhiều ảnh stego cùng lúc. Trong Swagger: Click 'Choose Files', giữ Ctrl+Click (Windows) hoặc Cmd+Click (Mac) để chọn nhiều ảnh",
+                required = true,
+                content = @Content(
+                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                    schema = @Schema(type = "object", implementation = MultipartFile.class)
+                )
+            )
+            @RequestPart(value = "images", required = true) List<MultipartFile> images) throws IOException {
 
         System.out.println("=== BATCH EXTRACT ENDPOINT CALLED ===");
         System.out.println("Number of images: " + images.size());
