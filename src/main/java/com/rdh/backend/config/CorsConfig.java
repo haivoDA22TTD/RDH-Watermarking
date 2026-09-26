@@ -84,7 +84,11 @@ public class CorsConfig {
             "Content-Length",
             "X-Total-Images",       // Custom header cho batch processing
             "X-Success-Count",      // Custom header cho batch processing
-            "X-Failure-Count"       // Custom header cho batch processing
+            "X-Failure-Count",      // Custom header cho batch processing
+            "X-RateLimit-Limit",    // Rate limiting info
+            "X-RateLimit-Remaining", // Rate limiting info
+            "X-RateLimit-Reset",    // Rate limiting info
+            "Retry-After"           // Rate limiting retry time
         ));
         
         // ============================================
