@@ -29,4 +29,34 @@ public class ApiResponse<T> {
                 .data(data)
                 .build();
     }
+
+    /**
+     * Tạo response thành công với custom message.
+     * 
+     * @param message Custom message
+     * @param data Dữ liệu trả về
+     * @return ApiResponse instance
+     */
+    public static <T> ApiResponse<T> success(String message, T data) {
+        return ApiResponse.<T>builder()
+                .code(200)
+                .message(message)
+                .data(data)
+                .build();
+    }
+
+    /**
+     * Tạo response lỗi.
+     * 
+     * @param code HTTP status code
+     * @param message Error message
+     * @return ApiResponse instance
+     */
+    public static <T> ApiResponse<T> error(int code, String message) {
+        return ApiResponse.<T>builder()
+                .code(code)
+                .message(message)
+                .data(null)
+                .build();
+    }
 }

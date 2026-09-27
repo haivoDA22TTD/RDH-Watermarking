@@ -54,9 +54,7 @@ public class RateLimitController {
         data.put("used", 100 - availableTokens);
         data.put("resetPeriod", "1 minute");
         
-        return ResponseEntity.ok(
-                ApiResponse.success("Rate limit status retrieved successfully", data)
-        );
+        return ResponseEntity.ok(ApiResponse.success(data));
     }
 
     /**
@@ -77,7 +75,7 @@ public class RateLimitController {
         rateLimitService.resetBucket(clientId);
         
         return ResponseEntity.ok(
-                ApiResponse.success("Rate limit reset successfully for client: " + clientId, null)
+                ApiResponse.success("Rate limit reset successfully for client: " + clientId)
         );
     }
 
@@ -97,7 +95,7 @@ public class RateLimitController {
         rateLimitService.resetBucket(clientId);
         
         return ResponseEntity.ok(
-                ApiResponse.success("Your rate limit has been reset", null)
+                ApiResponse.success("Your rate limit has been reset")
         );
     }
 
@@ -115,7 +113,7 @@ public class RateLimitController {
         rateLimitService.clearAllBuckets();
         
         return ResponseEntity.ok(
-                ApiResponse.success("All rate limit buckets cleared", null)
+                ApiResponse.success("All rate limit buckets cleared")
         );
     }
 
@@ -136,15 +134,15 @@ public class RateLimitController {
         stats.put("totalTrackedClients", totalKeys);
         stats.put("maxClients", 10000);
         stats.put("cacheUtilization", String.format("%.2f%%", (totalKeys / 10000.0) * 100));
-        stats.put("rateLimitConfig", Map.of(
-                "capacity", 100,
-                "refillPeriod", "1 minute",
-                "refillTokens", 100
-        ));
         
-        return ResponseEntity.ok(
-                ApiResponse.success("Rate limit statistics retrieved successfully", stats)
-        );
+        // Rate limit config
+        Map<String, Object> rateLimitConfig = new HashMap<>();
+        rateLimitConfig.put("capacity", 100);
+        rateLimitConfig.put("refillPeriod", "1 minute");
+        rateLimitConfig.put("refillTokens", 100);
+        stats.put("rateLimitConfig", rateLimitConfig);
+        
+        return ResponseEntity.ok(ApiResponse.success(stats));
     }
 
     /**
