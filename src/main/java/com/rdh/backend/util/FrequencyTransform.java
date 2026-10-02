@@ -78,9 +78,21 @@ public class FrequencyTransform {
      * 
      * @param data Input data (typically 8 elements)
      * @return DCT coefficients
+     * @throws IllegalArgumentException if data is null or empty
      */
     private static double[] applyDCT1D(double[] data) {
+        // Validation: Check for null or empty input
+        if (data == null) {
+            throw new IllegalArgumentException("DCT input data cannot be null");
+        }
+        
         int N = data.length;
+        
+        // Validation: Check for zero length (prevents division by zero)
+        if (N == 0) {
+            throw new IllegalArgumentException("DCT input data cannot be empty (length = 0)");
+        }
+        
         double[] result = new double[N];
         double sqrt2N = Math.sqrt(2.0 / N);
         
@@ -104,9 +116,21 @@ public class FrequencyTransform {
      * 
      * @param dctData DCT coefficients
      * @return Original data
+     * @throws IllegalArgumentException if dctData is null or empty
      */
     private static double[] applyIDCT1D(double[] dctData) {
+        // Validation: Check for null or empty input
+        if (dctData == null) {
+            throw new IllegalArgumentException("IDCT input data cannot be null");
+        }
+        
         int N = dctData.length;
+        
+        // Validation: Check for zero length (prevents division by zero)
+        if (N == 0) {
+            throw new IllegalArgumentException("IDCT input data cannot be empty (length = 0)");
+        }
+        
         double[] result = new double[N];
         double sqrt2N = Math.sqrt(2.0 / N);
         

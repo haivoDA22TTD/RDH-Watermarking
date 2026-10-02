@@ -28,12 +28,14 @@ public class InsufficientCapacityException extends RdhException {
     }
     
     private static String formatMessage(long required, long available) {
+        // Handle zero required case (prevent division by zero)
+        double deficitPercent = (required == 0) ? 0.0 : ((required - available) * 100.0 / required);
+        
         return String.format(
             "Insufficient capacity: Required %d bits, but only %d bits available. " +
             "Deficit: %d bits (%.1f%% short). " +
             "Suggestions: Use larger image, shorter watermark text, or reduce embedding strength.",
-            required, available, required - available, 
-            ((required - available) * 100.0 / required)
+            required, available, required - available, deficitPercent
         );
     }
     

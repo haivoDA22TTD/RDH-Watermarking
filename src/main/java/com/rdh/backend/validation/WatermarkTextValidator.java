@@ -79,11 +79,21 @@ public class WatermarkTextValidator {
      * @param text Watermark text
      * @param imageCapacity Available capacity in bits
      * @throws InvalidImageException if text invalid
-     * @throws InsufficientCapacityException if text too large for image
+     * @throws InsufficientCapacityException if text too large for image or capacity is zero
      */
     public void validateWatermarkTextWithCapacity(String text, long imageCapacity) {
         // First validate text
         validateWatermarkText(text);
+        
+        // Validation: Check for zero capacity (prevents division by zero)
+        if (imageCapacity == 0) {
+            throw new InsufficientCapacityException(
+                "Image has zero embedding capacity. Cannot embed any watermark data. " +
+                "This may occur with: 1) Uniform/flat images, 2) Very small images, or 3) Unsupported image formats. " +
+                "Try using a more complex image with varied pixel values.",
+                calculateRequiredBits(text), 0
+            );
+        }
         
         // Calculate required bits
         long requiredBits = calculateRequiredBits(text);
@@ -93,7 +103,8 @@ public class WatermarkTextValidator {
             throw new InsufficientCapacityException(
                 String.format("Insufficient image capacity. Required: %d bits, Available: %d bits. " +
                     "Try: 1) Use shorter watermark text, 2) Use larger image, or 3) Reduce image complexity",
-                    requiredBits, imageCapacity)
+                    requiredBits, imageCapacity),
+                requiredBits, imageCapacity
             );
         }
         
@@ -167,13 +178,26 @@ public class WatermarkTextValidator {
     
     /**
      * Get maximum recommended text length for given capacity
+     * 
+     * @param imageCapacity Available capacity in bits
+     * @return Maximum recommended text length in characters
      */
     public int getMaxRecommendedLength(long imageCapacity) {
+        // Handle zero capacity case
+        if (imageCapacity == 0) {
+            return 0;
+        }
+        
         // Reserve bits for delimiter and overhead
         long delimiterBits = (long) DELIMITER.length() * 8;
         long overheadBits = 64; // Additional overhead
         
         long availableBits = imageCapacity - delimiterBits - overheadBits;
+        
+        // Cannot have negative available bits
+        if (availableBits <= 0) {
+            return 0;
+        }
         
         // Each character = 8 bits
         int maxChars = (int) (availableBits / 8);
