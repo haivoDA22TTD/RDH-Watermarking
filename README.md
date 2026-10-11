@@ -5,7 +5,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://www.docker.com/)
 [![Architecture](https://img.shields.io/badge/Architecture-Clean%20%2F%20Layered-purple.svg)]()
 
-Hệ thống RESTful API Backend chuyên dụng cho bài toán **Giấu tin thuận nghịch (Reversible Data Hiding - RDH)** trên hình ảnh kỹ thuật số. Dự án cho phép nhúng dữ liệu ẩn vào ảnh và trích xuất lại thông tin ban đầu, đồng thời đảm bảo khả năng **khôi phục 100% ảnh gốc** không bị vỡ hay mất mát dữ liệu.
+Hệ thống RESTful API Backend chuyên dụng cho bài toán **Giấu tin thuận nghịch (Reversible Data Hiding - RDH)** trên hình ảnh kỹ thuật số. Dự án cho phép nhúng dữ liệu ẩn vào ảnh và trích xuất lại thông tin ban đầu, đồng thời đảm bảo khả năng **khôi phục 100% ảnh gốc**.
 
 ---
 
