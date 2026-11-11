@@ -95,6 +95,18 @@
 			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
 
+		<!-- ZXing - QR Code Generation -->
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>core</artifactId>
+			<version>3.5.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+			<version>3.5.3</version>
+		</dependency>
+
 		<!-- Mockito - Mocking framework (đã có trong spring-boot-starter-test) -->
 		
 		<!-- JUnit 5 Jupiter (đã có trong spring-boot-starter-test) -->

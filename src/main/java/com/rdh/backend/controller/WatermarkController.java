@@ -1,7 +1,10 @@
 package com.rdh.backend.controller;
 
+import com.rdh.backend.dto.enumtype.PatternType;
 import com.rdh.backend.dto.enumtype.WatermarkAttackType;
+import com.rdh.backend.dto.enumtype.WatermarkTemplateType;
 import com.rdh.backend.dto.enumtype.WatermarkType;
+import com.rdh.backend.dto.request.WatermarkTemplateRequest;
 import com.rdh.backend.dto.response.ApiResponse;
 import com.rdh.backend.dto.response.WatermarkAlgorithmInfo;
 import com.rdh.backend.dto.response.WatermarkExtractResponse;
@@ -447,5 +450,319 @@ public class WatermarkController {
         result.put("message", "Quality evaluation completed");
         
         return ResponseEntity.ok(ApiResponse.success(result));
+    }
+    
+    // ========================================
+    // WATERMARK TEMPLATE ENDPOINTS
+    // ========================================
+    
+    // 6. POST nhúng logo watermark
+    @Operation(
+            summary = "🖼️ Nhúng logo/hình ảnh làm watermark",
+            description = """
+                    Nhúng logo hoặc hình ảnh bất kỳ vào ảnh cover như một watermark.
+                    
+                    **Tính năng:**
+                    - Upload logo file (PNG, JPG, BMP với alpha/transparency)
+                    - Tự động resize logo theo kích thước mong muốn
+                    - Điều chỉnh vị trí (center, top-left, bottom-right, custom)
+                    - Điều chỉnh độ trong suốt (0.0-1.0)
+                    
+                    **Parameters:**
+                    - **coverImage**: Ảnh gốc cần nhúng logo
+                    - **logoFile**: File logo (PNG/JPG recommended)
+                    - **size**: Kích thước logo (pixels, default: 100)
+                    - **positionX**: Vị trí X (0.0=trái, 0.5=giữa, 1.0=phải)
+                    - **positionY**: Vị trí Y (0.0=trên, 0.5=giữa, 1.0=dưới)
+                    - **strength**: Độ mờ/trong suốt (0.0=invisible, 1.0=opaque)
+                    
+                    **Use cases:**
+                    - Watermark bằng company logo
+                    - Stamp bản quyền
+                    - Signature ảnh
+                    - Branding ảnh sản phẩm
+                    """,
+            tags = {"🌊 Watermarking"}
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "✅ Logo watermark nhúng thành công - Trả về ảnh PNG",
+                    content = @Content(
+                            mediaType = "image/png",
+                            schema = @Schema(type = "string", format = "binary")
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "❌ Lỗi - File không hợp lệ hoặc tham số sai"
+            )
+    })
+    @PostMapping(value = "/template/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<byte[]> embedLogoWatermark(
+            @Parameter(description = "Ảnh cover (PNG/JPG/BMP)", required = true)
+            @RequestPart("coverImage") @NotNull MultipartFile coverImage,
+            
+            @Parameter(description = "File logo (PNG/JPG recommended for alpha)", required = true)
+            @RequestPart("logoFile") @NotNull MultipartFile logoFile,
+            
+            @Parameter(description = "Kích thước logo (pixels, default: 100)", example = "100")
+            @RequestParam(value = "size", required = false, defaultValue = "100") 
+            @Min(10) @Max(2000) Integer size,
+            
+            @Parameter(description = "Vị trí X (0.0-1.0, default: 0.5=center)", example = "0.5")
+            @RequestParam(value = "positionX", required = false, defaultValue = "0.5") 
+            @Min(0) @Max(1) Double positionX,
+            
+            @Parameter(description = "Vị trí Y (0.0-1.0, default: 0.5=center)", example = "0.5")
+            @RequestParam(value = "positionY", required = false, defaultValue = "0.5") 
+            @Min(0) @Max(1) Double positionY,
+            
+            @Parameter(description = "Độ trong suốt (0.0-1.0, default: 0.5)", example = "0.5")
+            @RequestParam(value = "strength", required = false, defaultValue = "0.5") 
+            @Min(0) @Max(1) Double strength
+    ) throws IOException {
+        
+        // Validate files
+        imageFileValidator.validateImageFile(coverImage);
+        imageFileValidator.validateImageFile(logoFile);
+        
+        // Create request
+        WatermarkTemplateRequest request = new WatermarkTemplateRequest();
+        request.setTemplateType(WatermarkTemplateType.LOGO);
+        request.setSize(size);
+        request.setPositionX(positionX);
+        request.setPositionY(positionY);
+        request.setStrength(strength);
+        
+        // Embed logo watermark
+        WatermarkService.WatermarkEmbedResult result = watermarkService.embedLogoWatermark(
+                coverImage, logoFile, request
+        );
+        
+        // Return image with metadata in headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        headers.set("Content-Disposition", "attachment; filename=logo_watermarked.png");
+        headers.set("X-Template-Type", "LOGO");
+        headers.set("X-Logo-Size", String.valueOf(size));
+        headers.set("X-Position", String.format("(%.2f, %.2f)", positionX, positionY));
+        headers.set("X-Strength", String.format("%.2f", strength));
+        headers.set("X-PSNR", String.format("%.2f", result.getMetadata().getPsnr()));
+        headers.set("X-SSIM", String.format("%.4f", result.getMetadata().getSsim()));
+        
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(result.getImageBytes());
+    }
+    
+    // 7. POST nhúng QR code watermark
+    @Operation(
+            summary = "📱 Nhúng mã QR code làm watermark",
+            description = """
+                    Tự động tạo mã QR code từ text và nhúng vào ảnh cover.
+                    
+                    **Tính năng:**
+                    - Generate QR code từ bất kỳ text nào
+                    - Error correction level (L/M/Q/H)
+                    - Tùy chỉnh size và vị trí
+                    - Điều chỉnh độ trong suốt
+                    
+                    **Parameters:**
+                    - **coverImage**: Ảnh gốc
+                    - **qrText**: Text để tạo QR code (URL, contact info, v.v.)
+                    - **size**: Kích thước QR code (pixels, default: 100)
+                    - **positionX/Y**: Vị trí (default: center)
+                    - **strength**: Độ trong suốt (default: 0.5)
+                    - **errorCorrection**: L/M/Q/H (default: M)
+                    
+                    **Error Correction Levels:**
+                    - **L** (Low): 7% recovery - QR code nhỏ nhất
+                    - **M** (Medium): 15% recovery - **Recommended**
+                    - **Q** (Quartile): 25% recovery - Tốt cho in ấn
+                    - **H** (High): 30% recovery - Chống lỗi tối đa
+                    
+                    **Use cases:**
+                    - Embed URL vào product image
+                    - Contact info watermark
+                    - Tracking & verification
+                    - Interactive watermark (scan để verify)
+                    - Digital business card
+                    """,
+            tags = {"🌊 Watermarking"}
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "✅ QR code watermark nhúng thành công",
+                    content = @Content(
+                            mediaType = "image/png",
+                            schema = @Schema(type = "string", format = "binary")
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "❌ Lỗi - File không hợp lệ hoặc QR text trống"
+            )
+    })
+    @PostMapping(value = "/template/qrcode", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<byte[]> embedQRCodeWatermark(
+            @Parameter(description = "Ảnh cover (PNG/JPG/BMP)", required = true)
+            @RequestPart("coverImage") @NotNull MultipartFile coverImage,
+            
+            @Parameter(description = "Text để tạo QR code (URL, email, v.v.)", required = true, 
+                       example = "https://example.com/verify/12345")
+            @RequestParam("qrText") @NotBlank String qrText,
+            
+            @Parameter(description = "Kích thước QR code (pixels, default: 100)", example = "100")
+            @RequestParam(value = "size", required = false, defaultValue = "100") 
+            @Min(50) @Max(500) Integer size,
+            
+            @Parameter(description = "Vị trí X (0.0-1.0, default: 0.9=right)", example = "0.9")
+            @RequestParam(value = "positionX", required = false, defaultValue = "0.9") 
+            @Min(0) @Max(1) Double positionX,
+            
+            @Parameter(description = "Vị trí Y (0.0-1.0, default: 0.9=bottom)", example = "0.9")
+            @RequestParam(value = "positionY", required = false, defaultValue = "0.9") 
+            @Min(0) @Max(1) Double positionY,
+            
+            @Parameter(description = "Độ trong suốt (0.0-1.0, default: 0.7)", example = "0.7")
+            @RequestParam(value = "strength", required = false, defaultValue = "0.7") 
+            @Min(0) @Max(1) Double strength,
+            
+            @Parameter(description = "Error correction (L/M/Q/H, default: M)", example = "M")
+            @RequestParam(value = "errorCorrection", required = false, defaultValue = "M") String errorCorrection
+    ) throws IOException {
+        
+        // Validate file
+        imageFileValidator.validateImageFile(coverImage);
+        
+        // Create request
+        WatermarkTemplateRequest request = new WatermarkTemplateRequest();
+        request.setTemplateType(WatermarkTemplateType.QR_CODE);
+        request.setQrText(qrText);
+        request.setSize(size);
+        request.setPositionX(positionX);
+        request.setPositionY(positionY);
+        request.setStrength(strength);
+        request.setQrErrorCorrection(errorCorrection.toUpperCase());
+        
+        // Embed QR code watermark
+        WatermarkService.WatermarkEmbedResult result = watermarkService.embedQRCodeWatermark(
+                coverImage, request
+        );
+        
+        // Return image with metadata in headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        headers.set("Content-Disposition", "attachment; filename=qrcode_watermarked.png");
+        headers.set("X-Template-Type", "QR_CODE");
+        headers.set("X-QR-Size", String.valueOf(size));
+        headers.set("X-QR-Text-Length", String.valueOf(qrText.length()));
+        headers.set("X-Error-Correction", errorCorrection);
+        headers.set("X-Position", String.format("(%.2f, %.2f)", positionX, positionY));
+        headers.set("X-Strength", String.format("%.2f", strength));
+        headers.set("X-PSNR", String.format("%.2f", result.getMetadata().getPsnr()));
+        headers.set("X-SSIM", String.format("%.4f", result.getMetadata().getSsim()));
+        
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(result.getImageBytes());
+    }
+    
+    // 8. POST nhúng pattern watermark
+    @Operation(
+            summary = "🎨 Nhúng pattern tùy chỉnh làm watermark",
+            description = """
+                    Tạo và nhúng pattern hình học làm watermark.
+                    
+                    **6 Pattern Types:**
+                    - **GRID**: Lưới ô vuông (horizontal + vertical lines)
+                    - **DIAGONAL**: Đường chéo từ trái sang phải (/ / /)
+                    - **ANTI_DIAGONAL**: Đường chéo từ phải sang trái (\\ \\ \\)
+                    - **CHECKERBOARD**: Cờ vua (ô đen trắng xen kẽ)
+                    - **DOTS**: Chấm tròn đều đặn
+                    - **CROSS**: Hình chữ thập (+++)
+                    
+                    **Parameters:**
+                    - **coverImage**: Ảnh gốc
+                    - **patternType**: Loại pattern (xem danh sách trên)
+                    - **spacing**: Khoảng cách giữa các elements (pixels, default: 50)
+                    - **strength**: Độ trong suốt (default: 0.3 cho subtle effect)
+                    
+                    **Use cases:**
+                    - Background watermark toàn bộ ảnh
+                    - Security pattern (chống scan, photocopy)
+                    - Decorative watermark
+                    - Draft/Preview indicator
+                    - Tiled watermark pattern
+                    """,
+            tags = {"🌊 Watermarking"}
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "✅ Pattern watermark nhúng thành công",
+                    content = @Content(
+                            mediaType = "image/png",
+                            schema = @Schema(type = "string", format = "binary")
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "❌ Lỗi - File không hợp lệ hoặc pattern type không tồn tại"
+            )
+    })
+    @PostMapping(value = "/template/pattern", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<byte[]> embedPatternWatermark(
+            @Parameter(description = "Ảnh cover (PNG/JPG/BMP)", required = true)
+            @RequestPart("coverImage") @NotNull MultipartFile coverImage,
+            
+            @Parameter(description = "Loại pattern: GRID, DIAGONAL, ANTI_DIAGONAL, CHECKERBOARD, DOTS, CROSS", 
+                       required = true, example = "GRID")
+            @RequestParam("patternType") @NotBlank String patternTypeStr,
+            
+            @Parameter(description = "Khoảng cách giữa pattern elements (pixels, default: 50)", example = "50")
+            @RequestParam(value = "spacing", required = false, defaultValue = "50") 
+            @Min(10) @Max(500) Integer spacing,
+            
+            @Parameter(description = "Độ trong suốt (0.0-1.0, default: 0.3 for subtle)", example = "0.3")
+            @RequestParam(value = "strength", required = false, defaultValue = "0.3") 
+            @Min(0) @Max(1) Double strength
+    ) throws IOException {
+        
+        // Validate file
+        imageFileValidator.validateImageFile(coverImage);
+        
+        // Parse pattern type
+        PatternType patternType = PatternType.valueOf(patternTypeStr.toUpperCase());
+        
+        // Create request
+        WatermarkTemplateRequest request = new WatermarkTemplateRequest();
+        request.setTemplateType(WatermarkTemplateType.PATTERN);
+        request.setPatternType(patternType);
+        request.setSpacing(spacing);
+        request.setStrength(strength);
+        
+        // Embed pattern watermark
+        WatermarkService.WatermarkEmbedResult result = watermarkService.embedPatternWatermark(
+                coverImage, request
+        );
+        
+        // Return image with metadata in headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        headers.set("Content-Disposition", "attachment; filename=pattern_watermarked.png");
+        headers.set("X-Template-Type", "PATTERN");
+        headers.set("X-Pattern-Type", patternType.name());
+        headers.set("X-Pattern-Description", patternType.getDescription());
+        headers.set("X-Spacing", String.valueOf(spacing));
+        headers.set("X-Strength", String.format("%.2f", strength));
+        headers.set("X-PSNR", String.format("%.2f", result.getMetadata().getPsnr()));
+        headers.set("X-SSIM", String.format("%.4f", result.getMetadata().getSsim()));
+        
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(result.getImageBytes());
     }
 }

@@ -2,6 +2,7 @@ package com.rdh.backend.service;
 
 import com.rdh.backend.dto.enumtype.WatermarkAttackType;
 import com.rdh.backend.dto.enumtype.WatermarkType;
+import com.rdh.backend.dto.request.WatermarkTemplateRequest;
 import com.rdh.backend.dto.response.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,6 +68,51 @@ public interface WatermarkService {
      * @return List algorithm info
      */
     List<WatermarkAlgorithmInfo> getAvailableAlgorithms();
+    
+    // ========================================
+    // WATERMARK TEMPLATE METHODS
+    // ========================================
+    
+    /**
+     * Embed logo watermark into image.
+     * 
+     * @param coverImageFile Cover image file
+     * @param logoFile Logo image file to embed
+     * @param request Template request parameters
+     * @return Watermarked image bytes and metadata
+     * @throws IOException if file processing fails
+     */
+    WatermarkEmbedResult embedLogoWatermark(
+        MultipartFile coverImageFile,
+        MultipartFile logoFile,
+        WatermarkTemplateRequest request
+    ) throws IOException;
+    
+    /**
+     * Embed QR code watermark into image.
+     * 
+     * @param coverImageFile Cover image file
+     * @param request Template request parameters (must include qrText)
+     * @return Watermarked image bytes and metadata
+     * @throws IOException if file processing fails
+     */
+    WatermarkEmbedResult embedQRCodeWatermark(
+        MultipartFile coverImageFile,
+        WatermarkTemplateRequest request
+    ) throws IOException;
+    
+    /**
+     * Embed pattern watermark into image.
+     * 
+     * @param coverImageFile Cover image file
+     * @param request Template request parameters (must include patternType)
+     * @return Watermarked image bytes and metadata
+     * @throws IOException if file processing fails
+     */
+    WatermarkEmbedResult embedPatternWatermark(
+        MultipartFile coverImageFile,
+        WatermarkTemplateRequest request
+    ) throws IOException;
     
     /**
      * Inner class để return cả bytes và metadata

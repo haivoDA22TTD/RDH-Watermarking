@@ -2,11 +2,16 @@ package com.rdh.backend.service.impl;
 
 import com.rdh.backend.dto.enumtype.WatermarkAttackType;
 import com.rdh.backend.dto.enumtype.WatermarkType;
+import com.rdh.backend.dto.request.WatermarkTemplateRequest;
 import com.rdh.backend.dto.response.*;
+import com.rdh.backend.exception.InvalidImageException;
 import com.rdh.backend.exception.RdhException;
 import com.rdh.backend.service.WatermarkService;
 import com.rdh.backend.strategy.watermark.DctWatermarkStrategy;
 import com.rdh.backend.strategy.watermark.WatermarkStrategy;
+import com.rdh.backend.strategy.watermark.template.LogoWatermarkStrategy;
+import com.rdh.backend.strategy.watermark.template.PatternWatermarkStrategy;
+import com.rdh.backend.strategy.watermark.template.QRCodeWatermarkStrategy;
 import com.rdh.backend.util.AttackSimulator;
 import com.rdh.backend.util.MetricsCalculator;
 import org.springframework.stereotype.Service;
@@ -30,10 +35,24 @@ public class WatermarkServiceImpl implements WatermarkService {
     private final Map<WatermarkType, WatermarkStrategy> strategies = new HashMap<>();
     private static final int DEFAULT_STRENGTH = 50;
     
-    public WatermarkServiceImpl(DctWatermarkStrategy dctStrategy) {
+    // Template strategies
+    private final LogoWatermarkStrategy logoStrategy;
+    private final QRCodeWatermarkStrategy qrCodeStrategy;
+    private final PatternWatermarkStrategy patternStrategy;
+    
+    public WatermarkServiceImpl(
+            DctWatermarkStrategy dctStrategy,
+            LogoWatermarkStrategy logoStrategy,
+            QRCodeWatermarkStrategy qrCodeStrategy,
+            PatternWatermarkStrategy patternStrategy) {
         // Register strategies
         strategies.put(WatermarkType.DCT, dctStrategy);
         // TODO: Add DWT, LSB_ROBUST khi implement
+        
+        // Template strategies
+        this.logoStrategy = logoStrategy;
+        this.qrCodeStrategy = qrCodeStrategy;
+        this.patternStrategy = patternStrategy;
     }
     
     @Override
@@ -372,5 +391,179 @@ public class WatermarkServiceImpl implements WatermarkService {
         }
         
         return printableRatio * lengthScore;
+    }
+    
+    // ========================================
+    // WATERMARK TEMPLATE METHODS IMPLEMENTATION
+    // ========================================
+    
+    @Override
+    public WatermarkEmbedResult embedLogoWatermark(
+            MultipartFile coverImageFile,
+            MultipartFile logoFile,
+            WatermarkTemplateRequest request
+    ) throws IOException {
+        
+        long startTime = System.currentTimeMillis();
+        
+        // Validate
+        if (coverImageFile == null || coverImageFile.isEmpty()) {
+            throw new RdhException("Cover image file is required");
+        }
+        if (logoFile == null || logoFile.isEmpty()) {
+            throw new RdhException("Logo image file is required");
+        }
+        
+        // Read cover image
+        BufferedImage coverImage = ImageIO.read(coverImageFile.getInputStream());
+        if (coverImage == null) {
+            throw new InvalidImageException("Cannot read cover image file");
+        }
+        
+        // Embed logo
+        BufferedImage watermarkedImage = logoStrategy.embedLogo(
+                coverImage,
+                logoFile.getBytes(),
+                request
+        );
+        
+        // Convert to PNG bytes
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(watermarkedImage, "PNG", baos);
+        byte[] watermarkedBytes = baos.toByteArray();
+        
+        // Calculate metrics
+        double psnr = MetricsCalculator.calculatePSNR(coverImage, watermarkedImage);
+        double ssim = MetricsCalculator.calculateSSIM(coverImage, watermarkedImage);
+        
+        long processingTime = System.currentTimeMillis() - startTime;
+        
+        // Create response
+        WatermarkTemplateResponse templateResponse = logoStrategy.createResponse(watermarkedImage, request);
+        
+        // Convert to WatermarkEmbedResponse for compatibility
+        WatermarkEmbedResponse metadata = WatermarkEmbedResponse.builder()
+                .algorithm("LOGO_WATERMARK")
+                .strength((int) (request.getStrength() * 100))
+                .embeddedBits(0) // N/A for template watermarks
+                .psnr(psnr)
+                .ssim(ssim)
+                .originalSize(coverImageFile.getSize())
+                .watermarkedSize((long) watermarkedBytes.length)
+                .processingTimeMs(processingTime)
+                .message(templateResponse.getMessage())
+                .build();
+        
+        return new WatermarkEmbedResult(watermarkedBytes, metadata);
+    }
+    
+    @Override
+    public WatermarkEmbedResult embedQRCodeWatermark(
+            MultipartFile coverImageFile,
+            WatermarkTemplateRequest request
+    ) throws IOException {
+        
+        long startTime = System.currentTimeMillis();
+        
+        // Validate
+        if (coverImageFile == null || coverImageFile.isEmpty()) {
+            throw new RdhException("Cover image file is required");
+        }
+        if (request.getQrText() == null || request.getQrText().trim().isEmpty()) {
+            throw new RdhException("QR text is required");
+        }
+        
+        // Read cover image
+        BufferedImage coverImage = ImageIO.read(coverImageFile.getInputStream());
+        if (coverImage == null) {
+            throw new InvalidImageException("Cannot read cover image file");
+        }
+        
+        // Embed QR code
+        BufferedImage watermarkedImage = qrCodeStrategy.embedQRCode(coverImage, request);
+        
+        // Convert to PNG bytes
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(watermarkedImage, "PNG", baos);
+        byte[] watermarkedBytes = baos.toByteArray();
+        
+        // Calculate metrics
+        double psnr = MetricsCalculator.calculatePSNR(coverImage, watermarkedImage);
+        double ssim = MetricsCalculator.calculateSSIM(coverImage, watermarkedImage);
+        
+        long processingTime = System.currentTimeMillis() - startTime;
+        
+        // Create response
+        WatermarkTemplateResponse templateResponse = qrCodeStrategy.createResponse(watermarkedImage, request);
+        
+        // Convert to WatermarkEmbedResponse for compatibility
+        WatermarkEmbedResponse metadata = WatermarkEmbedResponse.builder()
+                .algorithm("QR_CODE_WATERMARK")
+                .strength((int) (request.getStrength() * 100))
+                .embeddedBits(request.getQrText().length() * 8)
+                .psnr(psnr)
+                .ssim(ssim)
+                .originalSize(coverImageFile.getSize())
+                .watermarkedSize((long) watermarkedBytes.length)
+                .processingTimeMs(processingTime)
+                .message(templateResponse.getMessage())
+                .build();
+        
+        return new WatermarkEmbedResult(watermarkedBytes, metadata);
+    }
+    
+    @Override
+    public WatermarkEmbedResult embedPatternWatermark(
+            MultipartFile coverImageFile,
+            WatermarkTemplateRequest request
+    ) throws IOException {
+        
+        long startTime = System.currentTimeMillis();
+        
+        // Validate
+        if (coverImageFile == null || coverImageFile.isEmpty()) {
+            throw new RdhException("Cover image file is required");
+        }
+        if (request.getPatternType() == null) {
+            throw new RdhException("Pattern type is required");
+        }
+        
+        // Read cover image
+        BufferedImage coverImage = ImageIO.read(coverImageFile.getInputStream());
+        if (coverImage == null) {
+            throw new InvalidImageException("Cannot read cover image file");
+        }
+        
+        // Embed pattern
+        BufferedImage watermarkedImage = patternStrategy.embedPattern(coverImage, request);
+        
+        // Convert to PNG bytes
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(watermarkedImage, "PNG", baos);
+        byte[] watermarkedBytes = baos.toByteArray();
+        
+        // Calculate metrics
+        double psnr = MetricsCalculator.calculatePSNR(coverImage, watermarkedImage);
+        double ssim = MetricsCalculator.calculateSSIM(coverImage, watermarkedImage);
+        
+        long processingTime = System.currentTimeMillis() - startTime;
+        
+        // Create response
+        WatermarkTemplateResponse templateResponse = patternStrategy.createResponse(watermarkedImage, request);
+        
+        // Convert to WatermarkEmbedResponse for compatibility
+        WatermarkEmbedResponse metadata = WatermarkEmbedResponse.builder()
+                .algorithm("PATTERN_WATERMARK_" + request.getPatternType().name())
+                .strength((int) (request.getStrength() * 100))
+                .embeddedBits(0) // N/A for pattern watermarks
+                .psnr(psnr)
+                .ssim(ssim)
+                .originalSize(coverImageFile.getSize())
+                .watermarkedSize((long) watermarkedBytes.length)
+                .processingTimeMs(processingTime)
+                .message(templateResponse.getMessage())
+                .build();
+        
+        return new WatermarkEmbedResult(watermarkedBytes, metadata);
     }
 }
